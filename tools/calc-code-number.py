@@ -18,7 +18,7 @@ parser.add_argument(
     "-e",
     "--ext",
     type=str,
-    default=".dart",
+    default="",
     help="The file extension to calculate code number.",
 )
 
@@ -27,6 +27,14 @@ parser.add_argument(
     "--check-empty-line",
     action="store_true",
     help="Check empty line or not.",
+)
+
+parser.add_argument(
+    "-i",
+    "--ignore-path",
+    type=str,
+    default="",
+    help="Ignore path.",
 )
 
 args = parser.parse_args()
@@ -45,8 +53,14 @@ def get_line_number(file):
 
 if __name__ == "__main__":
     dir_path = args.dir
+
+    if args.ext == "":
+        print("Please input file extension. Use -e to define.")
+        exit(1)
+
     ext_list = args.ext.split(",")
     check_empty_line = args.check_empty_line
+    ignore_path = args.ignore_path
     for i in range(len(ext_list)):
         ext_list[i] = ext_list[i].strip()
 
@@ -61,6 +75,10 @@ if __name__ == "__main__":
             if file.endswith(tuple(ext_list)):
                 total_file_count += 1
                 file_path = f"{dir[0]}/{file}"
+
+                if ignore_path != "" and file_path.find(ignore_path) != -1:
+                    continue
+
                 line_count, empty_count = get_line_number(file_path)
 
                 lines += line_count
