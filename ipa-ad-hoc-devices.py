@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Show ipa adhoc devices udid
 # 使用方式： python ipa-ad-hoc-devices.py xxx.ipa
 
@@ -58,5 +60,7 @@ if __name__ == "__main__":
         print("Extracted UDIDs:")
         for udid in udids:
             print(udid)
+
+        print("total:", len(udids))
     else:
         print("No UDIDs found.")
