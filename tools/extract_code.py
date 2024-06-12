@@ -1,71 +1,55 @@
-# 用于生成一个文件，应该是用于软著
-# 打开源码目录，提取出指定 extension 的文件，拼接到一起，生成一个文件
-# 使用方式，放在 "源码/scripts" 下 ，执行 python extract_code.py 即可
-
+#!/usr/bin/env python
+# 指定一个目录，提取其中的所有代码文件，将其内容提取到同文件中
+# 使用方法：python extract_code.py -s <src_dir> -d <dst_file> -exts <exts>
+import argparse
 import os
-import sys
 
 
-def get_files(path: str, extenstions: list[str], exclude_names: list[str] = []):
-    """获取指定目录下所有指定后缀的文件"""
+def extract_code(src_dir, dst_file, exts: str):
+    abs_dst_file = os.path.abspath(dst_file)
+    abs_src_dir = os.path.abspath(src_dir)
 
-    print("path:", path)
-    files = []
-    for root, dirs, filenames in os.walk(path):
-        for filename in filenames:
-            if filename in exclude_names:
-                continue
-            for ext in extenstions:
-                if filename.endswith(ext):
-                    files.append(os.path.join(root, filename))
-    return files
+    if not os.path.exists(src_dir):
+        print("Source directory {} not exists".format(abs_src_dir))
+        return
+
+    if not os.path.isdir(src_dir):
+        print("Source directory {} is not a directory".format(abs_src_dir))
+        return
+
+    if not os.path.exists(dst_file):
+        print("Destination file {} not exists, will create".format(abs_dst_file))
+        os.makedirs(os.path.dirname(abs_dst_file), exist_ok=True)
+
+    exts = exts.split(",")
+    with open(dst_file, "w") as dst_fp:
+        text = ""
+        for root, dirs, files in os.walk(src_dir):
+            for file in files:
+                for ext in exts:
+                    if file.endswith(ext):
+                        with open(os.path.join(root, file), "r") as src_fp:
+                            # dst_fp.write(src_fp.read())
+                            # dst_fp.write("\n")
+                            text += src_fp.read()
+
+        # 去除空行
+        lines = text.split("\n")
+        text = "\n".join([line for line in lines if line.strip() != ""])
+
+        dst_fp.write(text)
+
+    print("Extracted code from {} to {}".format(abs_src_dir, abs_dst_file))
 
 
-cwd = sys.path[0]
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", type=str, help="source directory")
+    parser.add_argument("-d", type=str, help="destination file", default="code.txt")
+    parser.add_argument("-exts", type=str, help="file extensions", default=".dart")
+    args = parser.parse_args()
+    extract_code(args.s, args.d, args.exts)
 
-files = get_files(f"{cwd}/..", [".java", ".kt"])
-dart_files = get_files(
-    f"{cwd}/..",
-    [".dart"],
-    [
-        "url.dart",
-        "http_utils.dart",
-        "main.dart",
-        "app.dart",
-    ],
-)
 
-files.extend(dart_files)
-
-print(f"共找到 {len(files)} 个文件")
-print(f"文件列表：{files}")
-
-result = f"{cwd}/../logs/result.txt"
-
-if os.path.exists(result):
-    os.remove(result)
-
-if os.path.exists(f"{cwd}/../logs"):
-    os.rmdir(f"{cwd}/../logs")
-
-ignore_contents = [
-    "Generated file",
-    "void main()",
-    "Generate by",
-    "Automatically generated file",
-    "Copyright (C) 2016 The Android Open Source Project",
-]
-
-for file in files:
-    with open(file, "r") as f:
-        content = f.read()
-
-        if any([ignore_content in content for ignore_content in ignore_contents]):
-            continue
-
-        lines = content.split("\n")
-        content = "\n".join([line for line in lines if line.strip() != ""])
-        with open(result, "a+") as r:
-            r.write(f"{content}\n")
-
-print(f"提取完成，结果保存在 {result}")
+if __name__ == "__main__":
+    main()
