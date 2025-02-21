@@ -1,11 +1,14 @@
 #!/opt/homebrew/Caskroom/miniconda/base/bin/python
 '''
-这个文件使用 gemini api 来生成 commit message
+这个文件使用 gemini api 的 gemini-2.0-flash-exp 模型来生成 commit message
 你可以自行替换 `prompt` 中的内容来调整生成的内容
 也可以自行替换 Gemini 的 api，并使用其他的 AI，比如 openai ollama 等
 
-需要安装的库
+如果你使用 GEMINI 的 api，需要安装如下的库
 pip install google-generative-ai python-dotenv
+
+并设置 .env 文件在 此文件的同名目录下，内容为
+GEMINI_API_KEY=你的 API key
 '''
 
 import warnings
