@@ -5,7 +5,7 @@
 也可以自行替换 Gemini 的 api，并使用其他的 AI，比如 openai ollama 等
 
 如果你使用 GEMINI 的 api，需要安装如下的库
-pip install google-generative-ai python-dotenv
+pip install google-genai python-dotenv
 
 并设置 .env 文件在 此文件的同名目录下，内容为
 GEMINI_API_KEY=你的 API key
