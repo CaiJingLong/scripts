@@ -5,7 +5,7 @@
 也可以自行替换 Gemini 的 api，并使用其他的 AI，比如 openai ollama 等
 
 如果你使用 GEMINI 的 api，需要安装如下的库
-pip install google-genai python-dotenv google.generativeai
+pip install google-generative-ai python-dotenv
 
 并设置 .env 文件在 此文件的同名目录下，内容为
 GEMINI_API_KEY=你的 API key
@@ -46,6 +46,11 @@ def call_cmd(cmd: str, contains_err: bool = False) -> str:
 cmd = 'git diff --staged'
 # 读取输出内容
 diff = call_cmd(cmd)
+
+if diff.strip() == "":
+  print('没有提交记录，退出')
+  exit(0)
+
 print('读取 git diff 结果成功，现在开始调用 AI 生成 commit message')
 
 # 5. 使用 AI 总结内容， gemini api 调用
@@ -94,7 +99,7 @@ chore: 更新了依赖
 - 本次升级了 junit 的版本号
 
 
-如下是 git commit diff: 
+如下是 git commit diff，这里要注意diff语法，不要包含diff中未变更的部分: 
 {diff}
 ```
 """.strip()
